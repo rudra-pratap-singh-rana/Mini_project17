@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TouchFree HCI · Team 17</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+<body>
+
+<!-- ── Scanline overlay ───────────────────────────────────── -->
+<div class="scanlines"></div>
+<div class="grid-bg"></div>
+
+<!-- ── Top Header ────────────────────────────────────────── -->
+<header class="topbar">
+  <div class="topbar-left">
+    <span class="logo-icon">⬡</span>
+    <div>
+      <div class="logo-title">TOUCHFREE HCI</div>
+      <div class="logo-sub">Vision-Based Gesture Control · Team 17</div>
+    </div>
+  </div>
+  <div class="topbar-center">
+    <div class="status-pill" id="connectionPill">
+      <span class="pulse-dot"></span>
+      <span id="connectionLabel">CONNECTING</span>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <div class="clock" id="clock">--:--:--</div>
+    <div class="fps-badge">FPS <span id="fpsVal">0</span></div>
+  </div>
+</header>
+
+<!-- ── Main Grid ──────────────────────────────────────────── -->
+<main class="main-grid">
+
+  <!-- ── LEFT: Camera Feed ──────────────────────────────── -->
+  <section class="panel panel-camera">
+    <div class="panel-header">
+      <span class="panel-tag">CAM · 01</span>
+      <span class="panel-title">LIVE FEED</span>
+      <span class="rec-dot" id="recDot">● REC</span>
+    </div>
+    <div class="camera-wrap">
+      <img id="feed" src="/video_feed" alt="Webcam Feed" />
+      <div class="camera-corner tl"></div>
+      <div class="camera-corner tr"></div>
+      <div class="camera-corner bl"></div>
+      <div class="camera-corner br"></div>
+      <div class="scan-line-anim"></div>
+    </div>
+    <div class="cam-footer">
+      <span>MEDIAPIPE · OPENCV · PYAUTOGUI</span>
+      <span id="frameCount">FRAME 0</span>
+    </div>
+  </section>
+
+  <!-- ── RIGHT COLUMN ───────────────────────────────────── -->
+  <div class="right-col">
+
+    <!-- Hand Status -->
+    <section class="panel panel-status">
+      <div class="panel-header">
+        <span class="panel-tag">SYS · 02</span>
+        <span class="panel-title">HAND STATUS</span>
+      </div>
+      <div class="hand-status-row">
+        <div class="hand-icon-wrap">
+          <div class="hand-icon" id="handIcon">✋</div>
+          <div class="hand-label" id="handLabel">SCANNING</div>
+        </div>
+        <div class="finger-grid">
+          <div class="finger-item" id="f0"><div class="finger-led"></div><span>THUMB</span></div>
+          <div class="finger-item" id="f1"><div class="finger-led"></div><span>INDEX</span></div>
+          <div class="finger-item" id="f2"><div class="finger-led"></div><span>MIDDLE</span></div>
+          <div class="finger-item" id="f3"><div class="finger-led"></div><span>RING</span></div>
+          <div class="finger-item" id="f4"><div class="finger-led"></div><span>PINKY</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Current Action -->
+    <section class="panel panel-action">
+      <div class="panel-header">
+        <span class="panel-tag">ACT · 03</span>
+        <span class="panel-title">CURRENT ACTION</span>
+      </div>
+      <div class="action-display" id="actionDisplay">
+        <div class="action-text" id="actionText">Waiting for gesture...</div>
+        <div class="action-bar-track"><div class="action-bar-fill" id="actionBar"></div></div>
+      </div>
+    </section>
+
+    <!-- Volume -->
+    <section class="panel panel-volume">
+      <div class="panel-header">
+        <span class="panel-tag">AUD · 04</span>
+        <span class="panel-title">VOLUME CONTROL</span>
+      </div>
+      <div class="volume-row">
+        <span class="vol-icon">🔇</span>
+        <div class="vol-track">
+          <div class="vol-fill" id="volFill"></div>
+          <div class="vol-segments">
+            <span></span><span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span><span></span>
+          </div>
+        </div>
+        <span class="vol-icon">🔊</span>
+        <div class="vol-pct" id="volPct">50%</div>
+      </div>
+    </section>
+
+    <!-- Module Toggles -->
+    <section class="panel panel-controls">
+      <div class="panel-header">
+        <span class="panel-tag">MOD · 05</span>
+        <span class="panel-title">MODULE CONTROL</span>
+      </div>
+      <div class="toggle-grid">
+        <label class="toggle-item active" id="toggle-cursor" onclick="toggleModule('enable_cursor', this)">
+          <div class="tog-indicator"></div>
+          <div class="tog-info">
+            <div class="tog-name">CURSOR</div>
+            <div class="tog-desc">☝️ Index finger move</div>
+          </div>
+          <div class="tog-switch on" id="sw-cursor">ON</div>
+        </label>
+        <label class="toggle-item active" id="toggle-click" onclick="toggleModule('enable_click', this)">
+          <div class="tog-indicator"></div>
+          <div class="tog-info">
+            <div class="tog-name">CLICK</div>
+            <div class="tog-desc">✌️ Pinch to click</div>
+          </div>
+          <div class="tog-switch on" id="sw-click">ON</div>
+        </label>
+        <label class="toggle-item active" id="toggle-volume" onclick="toggleModule('enable_volume', this)">
+          <div class="tog-indicator"></div>
+          <div class="tog-info">
+            <div class="tog-name">VOLUME</div>
+            <div class="tog-desc">🤏 Thumb + Index</div>
+          </div>
+          <div class="tog-switch on" id="sw-volume">ON</div>
+        </label>
+        <label class="toggle-item active" id="toggle-scroll" onclick="toggleModule('enable_scroll', this)">
+          <div class="tog-indicator"></div>
+          <div class="tog-info">
+            <div class="tog-name">SCROLL</div>
+            <div class="tog-desc">✌️ Two fingers up/down</div>
+          </div>
+          <div class="tog-switch on" id="sw-scroll">ON</div>
+        </label>
+      </div>
+    </section>
+
+  </div><!-- /right-col -->
+
+</main>
+
+<!-- ── Bottom: Gesture Guide ──────────────────────────────── -->
+<footer class="gesture-guide">
+  <div class="guide-label">GESTURE REFERENCE</div>
+  <div class="guide-cards">
+    <div class="guide-card">
+      <div class="guide-emoji">☝️</div>
+      <div class="guide-name">MOVE</div>
+      <div class="guide-desc">Index only</div>
+    </div>
+    <div class="guide-card">
+      <div class="guide-emoji">✌️</div>
+      <div class="guide-name">CLICK</div>
+      <div class="guide-desc">Pinch I+M</div>
+    </div>
+    <div class="guide-card">
+      <div class="guide-emoji">🤏</div>
+      <div class="guide-name">VOLUME</div>
+      <div class="guide-desc">Thumb+Index</div>
+    </div>
+    <div class="guide-card">
+      <div class="guide-emoji">🖐️</div>
+      <div class="guide-name">SCROLL</div>
+      <div class="guide-desc">I+M up/down</div>
+    </div>
+  </div>
+</footer>
+
+<script src="/static/js/app.js"></script>
+</body>
+</html>
