@@ -1,7 +1,8 @@
 # Mini_project17 Flask UI — Requirements
-# pip install -r requirements_flask.txt
+# Install with: pip install -r requirements_flask.txt
 
 flask>=3.0.0
+flask-limiter>=3.5.0
 opencv-python>=4.8.0
 mediapipe>=0.10.0
 pyautogui>=0.9.54
@@ -10,3 +11,4 @@ numpy>=1.24.0
 # Windows volume control (optional)
 # pycaw; sys_platform == "win32"
 # comtypes; sys_platform == "win32"
+
